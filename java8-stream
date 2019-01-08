@@ -1,0 +1,74 @@
+java8
+
+Stream流：
+		List<String> stringCollection = new ArrayList<>();
+        stringCollection.add("ddd2");
+        stringCollection.add("aaa2");
+        stringCollection.add("bbb1");
+        stringCollection.add("aaa1");
+        stringCollection.add("bbb3");
+        stringCollection.add("ccc");
+        stringCollection.add("bbb2");
+        stringCollection.add("ddd1");
+        stringCollection
+                .stream()
+                .filter((s) -> s.startsWith("a"))
+                .forEach(System.out::println);  //Filter:中间操作，过滤
+        System.out.println();
+        stringCollection
+                .stream()
+                .sorted()
+                .filter((s) -> s.startsWith("b"))
+                .forEach(System.out::println);  //sorted:中间操作，排序，不改变原来集合中的顺序
+        System.out.println();
+        stringCollection
+                .stream()
+                .map(String::toUpperCase)
+                .forEach(System.out::println);  //Map:中间操作，通过给定的方法，它能够把流对象中的每一个元素对应到另外一个对象上
+        System.out.println();
+        //Math:终结操作，匹配多种不同类型的操作
+        boolean startWithA = stringCollection
+                .stream()
+//                .anyMatch((s) ->s.startsWith("h"));  //匹配一个
+                .allMatch((s) -> s.startsWith("a"));   //匹配所有
+//                .noneMatch((s) -> s.startsWith("z"));//没有匹配
+        System.out.println(startWithA);
+
+        //Count:终结操作，统计数量
+        long countStartWithA = stringCollection
+                .stream()
+                .filter((s) -> s.startsWith("a"))
+                .count();
+        System.out.println(countStartWithA);
+
+        //Reduce:终结操作，通过某个方法对元素进行操作，操作结果会放在一个Optional变量里返回
+        Optional<String> reduce = stringCollection
+                .stream()
+                .sorted()
+                .reduce((s1, s2) -> s1+"#"+s2);
+        reduce.ifPresent(System.out::println);
+
+
+        /*
+         * parallelStream：并行流
+         **/
+        int max = 1000000;
+        List<String> values = new ArrayList<>(max);
+        for (int i = 0; i < max; i++) {
+            UUID uuid = UUID.randomUUID();
+            values.add(uuid.toString());
+        }
+        //顺序排序统计时长
+        long t0 = System.nanoTime();
+        long count = values.stream().sorted().count();
+        System.out.println(count);
+        long t1 = System.nanoTime();
+        long millis = TimeUnit.NANOSECONDS.toMillis(t1-t0);
+        System.out.println(String.format("顺序排序时长: %d ms", millis));
+        //并行排序统计时长
+        long t2 = System.nanoTime();
+        long count1 = values.stream().sorted().count();
+        System.out.println(count1);
+        long t3 = System.nanoTime();
+        long millis1 = TimeUnit.NANOSECONDS.toMillis(t3-t2);
+        System.out.println(String.format("并行流排序时长: %d ms", millis1));
